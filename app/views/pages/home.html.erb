@@ -1,75 +1,85 @@
 <script>
-  $.getJSON("https://edgarsubmissions.firebaseio.com/.json",function(data){
+  $(function () {
+    // Fetching data from source 
+    $.getJSON("https://edgarsubmissions.firebaseio.com/.json",function(data){
     
-    submission_data = {}
-    for(var key in data.submissions){
-      if( data.submissions[key].edgarSubmission.offeringData == undefined )
-        continue  
- 
-      submission_date = data.submissions[key].edgarSubmission.offeringData.signatureBlock.signatureDate ;
-  
-      if( submission_data[submission_date] == undefined ){
-        submission_data[submission_date] = {}
-        submission_data[submission_date]["new_count"] = 0
-        submission_data[submission_date]["ammendment_count"] = 0
+      submission_data = {}
+      
+      //Processing data to fetch required information with saperate categories for New filling and ammendments counts
+      for(var key in data.submissions){
+        
+        //Few of the records don't have offeringData
+        if( data.submissions[key].edgarSubmission.offeringData == undefined )
+          continue  
+         
+        submission_date = data.submissions[key].edgarSubmission.offeringData.signatureBlock.signatureDate ;
+        
+        // First time submission date is not defined
+        if( submission_data[submission_date] == undefined ){
+          submission_data[submission_date] = {}
+          submission_data[submission_date]["new_count"] = 0
+          submission_data[submission_date]["ammendment_count"] = 0
+        }
+      
+        //Updating new/ammendment count on the basis of flag provided  
+        if( data.submissions[key].edgarSubmission.offeringData.typeOfFiling.newOrAmendment.isAmendment == "true" ){
+          submission_data[submission_date]["ammendment_count"] += 1
+        }else{
+          submission_data[submission_date]["new_count"] += 1
+        }
       }
-  
-      if( data.submissions[key].edgarSubmission.offeringData.typeOfFiling.newOrAmendment.isAmendment == "true" ){
-        submission_data[submission_date]["ammendment_count"] += 1
-      }else{
-        submission_data[submission_date]["new_count"] += 1
-      }
-    }
-    submission_date_array = $.map(submission_data, function(value, key) { return key;})
-    submission_new_count_array = $.map(submission_data, function(value, key) { return value["new_count"]; })
-    submission_ammendment_count_array = $.map(submission_data, function(value, key) { return value["ammendment_count"];})
+      
+      //Extracting array from the object for highchart display
+      submission_date_array = $.map(submission_data, function(value, key) { return key;})
+      submission_new_count_array = $.map(submission_data, function(value, key) { return value["new_count"]; })
+      submission_ammendment_count_array = $.map(submission_data, function(value, key) { return value["ammendment_count"];})
 
-    $(function () {
-        $('#container').highcharts({
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'Daily submission stats'
-            },
-            subtitle: {
-                text: 'Source: edgarsubmissions.firebaseio.com/.json'
-            },
-            xAxis: {
-                categories: submission_date_array, 
-                title: {
-                    text: 'Submission Date'
-                }
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Submission count'
-                }
-            },
-            tooltip: {
-                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                    '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
-            },
-            plotOptions: {
-                column: {
-                    pointPadding: 0.2,
-                    borderWidth: 0
-                }
-            },
-            series: [{
-                name: 'New',
-                data: submission_new_count_array
+      //Highcharts implementation
+      $('#container').highcharts({
+          chart: {
+              type: 'column'
+          },
+          title: {
+              text: 'Daily submission stats'
+          },
+          subtitle: {
+              text: 'Source: edgarsubmissions.firebaseio.com/.json'
+          },
+          xAxis: {
+              categories: submission_date_array, 
+              title: {
+                  text: 'Submission Date'
+              }
+          },
+          yAxis: {
+              min: 0,
+              title: {
+                  text: 'Submission count'
+              }
+          },
+          tooltip: {
+              headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+              pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                  '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+              footerFormat: '</table>',
+              shared: true,
+              useHTML: true
+          },
+          plotOptions: {
+              column: {
+                  pointPadding: 0.2,
+                  borderWidth: 0
+              }
+          },
+          series: [{
+              name: 'New',
+              data: submission_new_count_array
     
-            }, {
-                name: 'Ammendment',
-                data: submission_ammendment_count_array
-            }]
-        });
+          }, {
+              name: 'Ammendment',
+              data: submission_ammendment_count_array
+          }]
+      });
     });
 
   })  
