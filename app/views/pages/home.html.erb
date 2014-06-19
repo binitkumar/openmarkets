@@ -23,9 +23,6 @@
     submission_date_array = $.map(submission_data, function(value, key) { return key;})
     submission_new_count_array = $.map(submission_data, function(value, key) { return value["new_count"]; })
     submission_ammendment_count_array = $.map(submission_data, function(value, key) { return value["ammendment_count"];})
-    console.log(submission_date_array)
-    console.log(submission_new_count_array)
-    console.log(submission_ammendment_count_array)
 
     $(function () {
         $('#container').highcharts({
